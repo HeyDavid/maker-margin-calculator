@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maker Margin — Etsy fee calculator</title>
+<meta name="description" content="See exactly what you keep after Etsy's listing, transaction, and payment processing fees. Free calculator for Etsy sellers." />
+<meta property="og:title" content="Maker Margin — Etsy fee calculator" />
+<meta property="og:description" content="See exactly what you keep after Etsy takes its cut." />
+<meta property="og:type" content="website" />
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1e222b;
+    --border: #2a2f3a;
+    --text: #e8eaef;
+    --muted: #8d95a3;
+    --accent: #ffb547;
+    --accent-soft: #2b2316;
+    --positive: #3ddc84;
+    --negative: #ff6b6b;
+    --link: #ffd28a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+  header { margin-bottom: 32px; }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .brand-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 18px;
+    margin: 0 0 8px;
+    max-width: 640px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 28px; }
+    .wrap { padding: 32px 16px 64px; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-weight: 600;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .field .hint {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-prefix {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+  .field input[type="number"] {
+    width: 100%;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px 10px 26px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field input[type="number"].no-prefix {
+    padding-left: 12px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .toggle-row input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+  }
+
+  .results-list { list-style: none; padding: 0; margin: 0; }
+  .results-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .results-list li:last-child { border-bottom: none; }
+  .results-list .label { color: var(--muted); font-size: 14px; }
+  .results-list .value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .results-list .value.fee { color: #ffd28a; }
+
+  .summary {
+    background: var(--accent-soft);
+    border: 1px solid #4a3a1a;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-top: 18px;
+  }
+  .summary .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary .row .label { color: var(--muted); font-size: 14px; }
+  .summary .row .value { font-size: 18px; font-weight: 600; }
+  .summary .row.net .value.positive { color: var(--positive); }
+  .summary .row.net .value.negative { color: var(--negative); }
+  .summary .row.margin .value.positive { color: var(--positive); }
+  .summary .row.margin .value.negative { color: var(--negative); }
+
+  .breakeven {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .breakeven strong { color: var(--text); font-weight: 500; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  footer .built {
+    color: var(--muted);
+  }
+  footer .built strong { color: var(--accent); font-weight: 600; }
+  footer .disclaimer { max-width: 520px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><span class="brand-dot"></span>Maker Margin</div>
+      <h1>Etsy fee calculator</h1>
+      <p class="subtitle">See exactly what you keep after Etsy takes its cut. US sellers, current 2025 fee structure.</p>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Inputs</h2>
+
+        <div class="field">
+          <label for="price">Item price</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="price" min="0" step="0.01" value="35.00" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="shipping-charged">Shipping charged to buyer</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="shipping-charged" min="0" step="0.01" value="6.00" />
+          </div>
+          <span class="hint">What the buyer pays at checkout. Use 0 if you offer free shipping.</span>
+        </div>
+
+        <div class="field">
+          <label for="shipping-cost">Your actual shipping cost</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="shipping-cost" min="0" step="0.01" value="5.50" />
+          </div>
+          <span class="hint">What you pay USPS/UPS to ship the item.</span>
+        </div>
+
+        <div class="field">
+          <label for="materials">Materials / cost of goods</label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="materials" min="0" step="0.01" value="8.00" />
+          </div>
+          <span class="hint">Raw materials, packaging, anything that goes into the product itself.</span>
+        </div>
+
+        <div class="field">
+          <div class="toggle-row">
+            <input type="checkbox" id="offsite-ads" />
+            <label for="offsite-ads" style="margin: 0;">Offsite Ads attribution (rare per-order fee)</label>
+          </div>
+          <div class="input-wrap" id="offsite-rate-wrap" style="display: none;">
+            <input type="number" id="offsite-rate" class="no-prefix" min="0" max="100" step="0.5" value="15" />
+            <span class="hint" style="margin-left: 10px;">% &mdash; 12% if &lt;$10k/yr, 15% if &gt;$10k/yr</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>What Etsy takes</h2>
+        <ul class="results-list">
+          <li><span class="label">Listing fee</span><span class="value fee" id="r-listing">$0.20</span></li>
+          <li><span class="label">Transaction fee (6.5%)</span><span class="value fee" id="r-transaction">$0.00</span></li>
+          <li><span class="label">Payment processing (3% + $0.25)</span><span class="value fee" id="r-payment">$0.00</span></li>
+          <li id="r-offsite-row" style="display: none;"><span class="label">Offsite Ads fee</span><span class="value fee" id="r-offsite">$0.00</span></li>
+          <li><span class="label"><strong>Total Etsy fees</strong></span><span class="value" id="r-total-fees" style="font-weight: 600;">$0.00</span></li>
+        </ul>
+
+        <div class="summary">
+          <div class="row">
+            <span class="label">Buyer pays</span>
+            <span class="value" id="r-buyer-pays">$0.00</span>
+          </div>
+          <div class="row">
+            <span class="label">Your costs (shipping + materials)</span>
+            <span class="value" id="r-your-costs">$0.00</span>
+          </div>
+          <div class="row net">
+            <span class="label"><strong>Net profit per order</strong></span>
+            <span class="value positive" id="r-net">$0.00</span>
+          </div>
+          <div class="row margin">
+            <span class="label">Margin</span>
+            <span class="value positive" id="r-margin">0%</span>
+          </div>
+
+          <div class="breakeven">
+            To break even at this shipping + materials cost, your item price needs to be at least <strong id="r-breakeven">$0.00</strong>.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div class="built">
+        Built by <strong>Maker Margin</strong> &mdash; tools and field notes for Etsy sellers.
+      </div>
+      <div class="disclaimer">
+        Etsy fee structure as of 2025. Estimates only &mdash; verify with your seller dashboard. Excludes regulatory operating fees and Etsy Plus subscription.
+      </div>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  const ids = ['price', 'shipping-charged', 'shipping-cost', 'materials', 'offsite-rate'];
+  const inputs = ids.map(id => document.getElementById(id));
+  const offsiteToggle = document.getElementById('offsite-ads');
+  const offsiteWrap = document.getElementById('offsite-rate-wrap');
+  const offsiteRow = document.getElementById('r-offsite-row');
+
+  const fmt = n => {
+    if (!isFinite(n)) return '$0.00';
+    const sign = n < 0 ? '-' : '';
+    return sign + '$' + Math.abs(n).toFixed(2);
+  };
+  const pct = n => (isFinite(n) ? n.toFixed(1) + '%' : '0%');
+
+  function calc() {
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const shipCharged = parseFloat(document.getElementById('shipping-charged').value) || 0;
+    const shipCost = parseFloat(document.getElementById('shipping-cost').value) || 0;
+    const materials = parseFloat(document.getElementById('materials').value) || 0;
+    const offsiteOn = offsiteToggle.checked;
+    const offsiteRate = (parseFloat(document.getElementById('offsite-rate').value) || 0) / 100;
+
+    const buyerPays = price + shipCharged;
+    const listingFee = 0.20;
+    const transactionFee = buyerPays * 0.065;
+    const paymentFee = buyerPays * 0.03 + 0.25;
+    const offsiteFee = offsiteOn ? buyerPays * offsiteRate : 0;
+    const totalFees = listingFee + transactionFee + paymentFee + offsiteFee;
+    const yourCosts = shipCost + materials;
+    const net = buyerPays - totalFees - yourCosts;
+    const margin = price > 0 ? (net / buyerPays) * 100 : 0;
+
+    const totalRatePct = 0.065 + 0.03 + (offsiteOn ? offsiteRate : 0);
+    const breakeven = (0.45 + shipCost + materials) / (1 - totalRatePct) - shipCharged;
+
+    document.getElementById('r-listing').textContent = fmt(listingFee);
+    document.getElementById('r-transaction').textContent = fmt(transactionFee);
+    document.getElementById('r-payment').textContent = fmt(paymentFee);
+    document.getElementById('r-offsite').textContent = fmt(offsiteFee);
+    document.getElementById('r-total-fees').textContent = fmt(totalFees);
+    document.getElementById('r-buyer-pays').textContent = fmt(buyerPays);
+    document.getElementById('r-your-costs').textContent = fmt(yourCosts);
+
+    const netEl = document.getElementById('r-net');
+    netEl.textContent = fmt(net);
+    netEl.classList.toggle('positive', net >= 0);
+    netEl.classList.toggle('negative', net < 0);
+
+    const marginEl = document.getElementById('r-margin');
+    marginEl.textContent = pct(margin);
+    marginEl.classList.toggle('positive', margin >= 0);
+    marginEl.classList.toggle('negative', margin < 0);
+
+    document.getElementById('r-breakeven').textContent = fmt(Math.max(0, breakeven));
+  }
+
+  inputs.forEach(el => el.addEventListener('input', calc));
+  offsiteToggle.addEventListener('change', () => {
+    offsiteWrap.style.display = offsiteToggle.checked ? 'flex' : 'none';
+    offsiteRow.style.display = offsiteToggle.checked ? 'flex' : 'none';
+    calc();
+  });
+
+  calc();
+})();
+</script>
+</body>
+</html>
