@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -203,6 +204,29 @@
   }
   .breakeven strong { color: var(--text); font-weight: 500; }
 
+  .capture {
+    margin-top: 32px;
+    padding: 28px 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .capture h2 {
+    font-size: 20px;
+    color: var(--text);
+    margin: 0 0 8px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    text-transform: none;
+  }
+  .capture p {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 520px;
+    margin: 0 auto 20px;
+  }
+
   footer {
     margin-top: 48px;
     padding-top: 24px;
@@ -315,6 +339,14 @@
       </section>
     </div>
 
+    <section class="capture">
+      <h2>Get the rest of the Maker Margin field notes</h2>
+      <p>Free weekly emails for Etsy sellers. Pricing moves, fee changes, what's working in your category. No fluff, unsubscribe anytime.</p>
+      <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form="f76a4059-1c31-4e2a-91c9-968eac1f83ac"></script>
+    </section>
+
+    <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
+
     <footer>
       <div class="built">
         Built by <strong>Maker Margin</strong> &mdash; tools and field notes for Etsy sellers.
@@ -358,6 +390,11 @@
     const net = buyerPays - totalFees - yourCosts;
     const margin = price > 0 ? (net / buyerPays) * 100 : 0;
 
+    // Breakeven price (item price): solve for P where:
+    // (P + S) - (0.20 + 0.065*(P+S) + 0.03*(P+S) + 0.25 + offsiteRate*(P+S)) - shipCost - materials = 0
+    // Let totalRatePct = 0.065 + 0.03 + (offsiteOn ? offsiteRate : 0)
+    // (P+S)*(1 - totalRatePct) = 0.45 + shipCost + materials
+    // P = (0.45 + shipCost + materials) / (1 - totalRatePct) - S
     const totalRatePct = 0.065 + 0.03 + (offsiteOn ? offsiteRate : 0);
     const breakeven = (0.45 + shipCost + materials) / (1 - totalRatePct) - shipCharged;
 
